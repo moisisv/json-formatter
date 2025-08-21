@@ -43,6 +43,9 @@ function App() {
   const [base64Input, setBase64Input] = useState("");
   const [base64Output, setBase64Output] = useState("");
 
+  const [md5Input, setMd5Input] = useState("");
+  const [md5Output, setMd5Output] = useState("");
+
   useEffect(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
@@ -164,6 +167,22 @@ function App() {
     }
   };
 
+  // Handler
+  const handleMd5Convert = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/api/md5", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: md5Input }),
+      });
+      const data = await res.json();
+      if (data.output) setMd5Output(data.output);
+      else setMd5Output("Error computing MD5");
+    } catch {
+      setMd5Output("Error connecting to server");
+    }
+  };
+
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
@@ -228,6 +247,7 @@ function App() {
             <Tab label="Tree View" />
             <Tab label="Convert to Base64" />
             <Tab label="Decode from Base64" />
+            <Tab label="MD5 Hash" />
           </Tabs>
 
           {/* JSON Raw View */}
@@ -364,6 +384,53 @@ function App() {
                       variant="outlined"
                       color="secondary"
                       onClick={handleCopyBase64}
+                    >
+                      Copy
+                    </Button>
+                  </Box>
+                </>
+              )}
+            </Box>
+          )}
+          {tab === 4 && (
+            <Box>
+              <TextField
+                label="Enter text to hash"
+                multiline
+                fullWidth
+                minRows={6}
+                value={md5Input}
+                onChange={(e) => setMd5Input(e.target.value)}
+                margin="normal"
+                maxRows={18}
+              />
+              <Box display="flex" justifyContent="flex-end" mt={2}>
+                <Button variant="contained" onClick={handleMd5Convert}>
+                  Compute MD5
+                </Button>
+              </Box>
+              {md5Output && (
+                <>
+                  <TextField
+                    label="MD5 Output"
+                    multiline
+                    fullWidth
+                    minRows={2}
+                    value={md5Output}
+                    margin="normal"
+                    InputProps={{ readOnly: true }}
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        maxHeight: 100,
+                        overflow: "auto",
+                      },
+                    }}
+                  />
+                  <Box display="flex" justifyContent="flex-end" mt={2}>
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => navigator.clipboard.writeText(md5Output)}
                     >
                       Copy
                     </Button>

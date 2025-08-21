@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const jsonrepair = require("jsonrepair");
+const crypto = require("crypto");
 
 const app = express();
 app.use(cors());
@@ -46,6 +47,13 @@ app.post("/api/format", (req, res) => {
       error: `Failed to parse JSON: ${err.message}`,
     });
   }
+});
+
+app.post("/api/md5", (req, res) => {
+  const { input } = req.body;
+  if (!input) return res.status(400).json({ error: "No input provided" });
+  const hash = crypto.createHash("md5").update(input, "utf8").digest("hex");
+  res.json({ output: hash });
 });
 
 const PORT = 3001;
