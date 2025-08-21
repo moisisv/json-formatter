@@ -39,6 +39,10 @@ function App() {
   const [tab, setTab] = useState(0);
   const [parsedJson, setParsedJson] = useState(null);
 
+  // Base64 states
+  const [base64Input, setBase64Input] = useState("");
+  const [base64Output, setBase64Output] = useState("");
+
   useEffect(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
@@ -89,8 +93,21 @@ function App() {
     }
   };
 
-  const handleCopy = () => {
+  const handleCopyJson = () => {
     navigator.clipboard.writeText(jsonText).then(
+      () => {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      },
+      () => {
+        setError("Failed to copy to clipboard");
+        setShowAlert(true);
+      }
+    );
+  };
+
+  const handleCopyBase64 = () => {
+    navigator.clipboard.writeText(base64Output).then(
       () => {
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
@@ -116,12 +133,38 @@ function App() {
     setHistory([]);
   };
 
-  const handleTabChange = (_, newValue) => setTab(newValue);
+  const handleTabChange = (_, newValue) => {
+    setTab(newValue);
+
+    // Reset Base64 fields when switching tabs 2 or 3
+    if (newValue === 2 || newValue === 3) {
+      setBase64Input("");
+      setBase64Output("");
+    }
+  };
+
+  // Base64 handlers
+  const handleEncodeBase64 = () => {
+    try {
+      setBase64Output(btoa(base64Input));
+    } catch {
+      setBase64Output("Error: Unable to encode");
+    }
+  };
+
+  const handleDecodeBase64 = () => {
+    try {
+      setBase64Output(atob(base64Input));
+    } catch {
+      setBase64Output("Error: Invalid Base64 string");
+    }
+  };
 
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <Box sx={{ display: "flex" }}>
+        {/* History Drawer */}
         <Drawer
           variant="permanent"
           anchor="left"
@@ -169,31 +212,21 @@ function App() {
           </List>
         </Drawer>
 
+        {/* Main Content */}
         <Container maxWidth="md" sx={{ mt: 6, ml: "260px" }}>
           <Typography variant="h4" gutterBottom>
-            JSON Formatter & Fixer
+            JSON & Base64 Toolkit
           </Typography>
 
+          {/* Tabs */}
           <Tabs value={tab} onChange={handleTabChange} sx={{ mb: 2 }}>
             <Tab label="Raw View" />
             <Tab label="Tree View" />
+            <Tab label="Convert to Base64" />
+            <Tab label="Decode from Base64" />
           </Tabs>
 
-          {/* {tab === 0 && (
-            <TextField
-              label="Paste or Edit Your JSON"
-              multiline
-              fullWidth
-              minRows={18}
-              value={jsonText}
-              onChange={(e) => setJsonText(e.target.value)}
-              variant="outlined"
-              margin="normal"
-              InputProps={{
-                sx: { fontFamily: "monospace" },
-              }}
-            />
-          )} */}
+          {/* JSON Raw View */}
           {tab === 0 && (
             <Box
               sx={{
@@ -219,6 +252,7 @@ function App() {
             </Box>
           )}
 
+          {/* JSON Tree View */}
           {tab === 1 && parsedJson && (
             <Box
               sx={{
@@ -241,22 +275,117 @@ function App() {
               />
             </Box>
           )}
-
           {tab === 1 && !parsedJson && (
             <Alert severity="warning" sx={{ mt: 2 }}>
               Cannot display Tree View. The JSON is not valid or empty.
             </Alert>
           )}
 
-          <Box display="flex" justifyContent="flex-end" gap={2} mt={3}>
-            <Button variant="contained" color="primary" onClick={handleFormat}>
-              Format JSON
-            </Button>
-            <Button variant="outlined" color="secondary" onClick={handleCopy}>
-              Copy
-            </Button>
-          </Box>
+          {/* Convert to Base64 */}
+          {tab === 2 && (
+            <Box>
+              <TextField
+                label="Enter text to encode"
+                multiline
+                fullWidth
+                minRows={6}
+                value={base64Input}
+                onChange={(e) => setBase64Input(e.target.value)}
+                margin="normal"
+              />
+              <Box display="flex" justifyContent="flex-end" mt={2}>
+                <Button variant="contained" onClick={handleEncodeBase64}>
+                  Convert to Base64
+                </Button>
+              </Box>
+              {base64Output && (
+                <>
+                  <TextField
+                    label="Base64 Output"
+                    multiline
+                    fullWidth
+                    minRows={6}
+                    value={base64Output}
+                    margin="normal"
+                    InputProps={{ readOnly: true }}
+                  />
+                  <Box display="flex" justifyContent="flex-end" mt={2}>
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={handleCopyBase64}
+                    >
+                      Copy
+                    </Button>
+                  </Box>
+                </>
+              )}
+            </Box>
+          )}
 
+          {/* Decode from Base64 */}
+          {tab === 3 && (
+            <Box>
+              <TextField
+                label="Enter Base64 string to decode"
+                multiline
+                fullWidth
+                minRows={6}
+                value={base64Input}
+                onChange={(e) => setBase64Input(e.target.value)}
+                margin="normal"
+              />
+              <Box display="flex" justifyContent="flex-end" mt={2}>
+                <Button variant="contained" onClick={handleDecodeBase64}>
+                  Decode from Base64
+                </Button>
+              </Box>
+              {base64Output && (
+                <>
+                  <TextField
+                    label="Decoded Output"
+                    multiline
+                    fullWidth
+                    minRows={6}
+                    value={base64Output}
+                    margin="normal"
+                    InputProps={{ readOnly: true }}
+                  />
+                  <Box display="flex" justifyContent="flex-end" mt={2}>
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={handleCopyBase64}
+                    >
+                      Copy
+                    </Button>
+                  </Box>
+                </>
+              )}
+            </Box>
+          )}
+
+          {/* JSON Buttons */}
+          {tab === 0 && (
+            <Box display="flex" justifyContent="flex-end" gap={2} mt={3}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleFormat}
+              >
+                Format JSON
+              </Button>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={handleCopyJson}
+              >
+                Copy
+              </Button>
+            </Box>
+          )}
+
+          {/* Alerts */}
           <Snackbar
             open={showAlert}
             autoHideDuration={6000}
