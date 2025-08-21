@@ -1,6 +1,7 @@
 {
   "name": "json-backend",
   "version": "1.0.0",
+  "author": "moisisv@gmail.com",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
