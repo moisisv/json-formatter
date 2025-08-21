@@ -154,7 +154,11 @@ function App() {
 
   const handleDecodeBase64 = () => {
     try {
-      setBase64Output(atob(base64Input));
+      // Convert Base64 to byte array
+      const bytes = Uint8Array.from(atob(base64Input), (c) => c.charCodeAt(0));
+      // Decode UTF-8 bytes
+      const decoded = new TextDecoder("utf-8").decode(bytes);
+      setBase64Output(decoded);
     } catch {
       setBase64Output("Error: Invalid Base64 string");
     }
