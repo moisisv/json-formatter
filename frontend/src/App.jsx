@@ -292,6 +292,7 @@ function App() {
                 value={base64Input}
                 onChange={(e) => setBase64Input(e.target.value)}
                 margin="normal"
+                maxRows={18}
               />
               <Box display="flex" justifyContent="flex-end" mt={2}>
                 <Button variant="contained" onClick={handleEncodeBase64}>
@@ -308,6 +309,7 @@ function App() {
                     value={base64Output}
                     margin="normal"
                     InputProps={{ readOnly: true }}
+                    maxRows={18}
                   />
                   <Box display="flex" justifyContent="flex-end" mt={2}>
                     <Button
@@ -334,6 +336,7 @@ function App() {
                 value={base64Input}
                 onChange={(e) => setBase64Input(e.target.value)}
                 margin="normal"
+                maxRows={18}
               />
               <Box display="flex" justifyContent="flex-end" mt={2}>
                 <Button variant="contained" onClick={handleDecodeBase64}>
@@ -350,6 +353,7 @@ function App() {
                     value={base64Output}
                     margin="normal"
                     InputProps={{ readOnly: true }}
+                    maxRows={18}
                   />
                   <Box display="flex" justifyContent="flex-end" mt={2}>
                     <Button
