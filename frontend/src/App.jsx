@@ -236,7 +236,7 @@ function App() {
         </Drawer>
 
         {/* Main Content */}
-        <Container maxWidth="md" sx={{ mt: 6, ml: "260px" }}>
+        <Container maxWidth="md" sx={{ mt: 6 }}>
           <Typography variant="h4" gutterBottom>
             JSON & Base64 Toolkit
           </Typography>
